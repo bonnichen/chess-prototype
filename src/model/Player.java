@@ -78,8 +78,6 @@ public class Player {
             ((AiPlayer) model.getPlayerInPlay()).makeMove();
             model.setPlayerInPlay(this);
         }
-        System.out.println("PLAYER TURN END");
-        System.out.println(model.getPlayerInPlay());
         return moveType.VALID;
     }
 

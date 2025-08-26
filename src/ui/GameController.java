@@ -45,7 +45,6 @@ public class GameController extends MouseAdapter{
 
     @Override
     public void mousePressed(MouseEvent e) {
-        System.out.println(model.getPlayerInPlay());
         gameBoard.removeHighlights();
         int row = e.getX()/75;
         int col = e.getY()/75;
