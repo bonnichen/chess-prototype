@@ -1,6 +1,10 @@
 package model;
 
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import javax.swing.event.SwingPropertyChangeSupport;
 import model.Board.GraphCoord;
 import model.Board.iPair;
@@ -290,24 +294,15 @@ public class GameModel {
         }
     }
     public void removePiece(Pieces piece){
-        int counter = 0;
-        Pieces[] newChessPieces = new Pieces[chessPieces.length-1];
-        for (Pieces chessPiece: chessPieces){
-            if (chessPiece != piece) {
-                newChessPieces[counter ++]=chessPiece;
-            }
-        }
-        chessPieces = newChessPieces;
+        List<Pieces> chessPiecesList = new ArrayList<>(Arrays.asList(chessPieces));
+        chessPiecesList.remove(piece);
+        chessPieces = chessPiecesList.toArray(new Pieces[0]);
     }
 
     public void addPiece(Pieces piece){
-        int counter = 0;
-        Pieces[] newChessPieces = new Pieces[chessPieces.length+1];
-        for (Pieces chessPiece: chessPieces){
-            newChessPieces[counter ++]=chessPiece;
-        }
-        newChessPieces[counter] = piece;
-        chessPieces = newChessPieces;
+        List<Pieces> chessPiecesList = new ArrayList<>(Arrays.asList(chessPieces));
+        chessPiecesList.add(piece);
+        chessPieces = chessPiecesList.toArray(new Pieces[0]);
     }
 
     public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
