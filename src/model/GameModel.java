@@ -267,11 +267,11 @@ public class GameModel {
         if (captured != null){
             iPair capturedPosition = captured.pos.getCoord();
             board[capturedPosition.i()][capturedPosition.j()] = captured;
-            addPiece(captured);
+            addPiece(captured, lastMove.capturedIndex());
         }
     }
     private void undoCastling(){
-        if (lastMove.wasCastling){
+        if (lastMove.wasCastling()){
             iPair currentPosition = lastMove.positionTo().getCoord();
             Pieces rook;
             if (currentPosition.i() == 2){
@@ -293,16 +293,30 @@ public class GameModel {
             counter ++;
         }
     }
+
+    public int getPeiceIndex(Pieces piece){
+        int counter = 0;
+        for (Pieces chessPiece: chessPieces){
+            if (chessPiece == piece) {
+                return counter;
+            }
+            counter ++;
+        }
+        return -1;
+    }
+    
     public void removePiece(Pieces piece){
-        List<Pieces> chessPiecesList = new ArrayList<>(Arrays.asList(chessPieces));
-        chessPiecesList.remove(piece);
-        chessPieces = chessPiecesList.toArray(new Pieces[0]);
+        for (Pieces chessPiece: chessPieces){
+            if (chessPiece == piece) {
+                piece.setCaptured(true);
+                break;
+            }
+        }
     }
 
-    public void addPiece(Pieces piece){
-        List<Pieces> chessPiecesList = new ArrayList<>(Arrays.asList(chessPieces));
-        chessPiecesList.add(piece);
-        chessPieces = chessPiecesList.toArray(new Pieces[0]);
+    public void addPiece(Pieces piece, int index){
+        chessPieces[index] = piece;
+        piece.setCaptured(false);
     }
 
     public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {

@@ -13,6 +13,14 @@ public abstract class Pieces {
     protected final GameModel model;
     protected boolean moved;
     protected int value;
+    private boolean isCaptured = false;
+
+    public void setCaptured(boolean captured) {
+        isCaptured = captured;
+    }
+    public boolean isCaptured() {
+        return isCaptured;
+    }
 
     private final King king;
 
@@ -90,9 +98,11 @@ public abstract class Pieces {
 
     protected Pieces processCapture(int i, int j){
         Pieces output = board[i][j];
+        int index = model.getPeiceIndex(output);
+        System.out.println(index);
         model.removePiece(board[i][j]);
         board[i][j] = null;
-        lastMove.setPieceCaptured(output);
+        lastMove.setPieceCaptured(output, index);
         return output;
     }
     public void setValidMoves(){
@@ -126,4 +136,8 @@ public abstract class Pieces {
 
     }
 
+    public void moveSimulation(GraphCoord move, Pieces piece){
+        piece.setPos(move.getCoord().i(), move.getCoord().j());
+        piece.moved = true;
+    }
 }

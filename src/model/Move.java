@@ -11,11 +11,16 @@ public class Move {
     private boolean wasFirstMove;
     private boolean wasPromoted;
     private Pieces promotedTo;
-    boolean wasEnPassant;
-    boolean wasCastling;
-    int score;
+    private int capturedIndex;
+    private boolean wasEnPassant;
+    private boolean wasCastling;
+    private int score;
 
-    public int getScore(){return score;}
+    public int capturedIndex(){
+        return capturedIndex;
+    }
+    
+    public int score(){return score;}
 
     public void setScore(int score) {
         this.score = score;
@@ -68,8 +73,10 @@ public class Move {
         return pieceCaptured;
     }
 
-    public void setPieceCaptured(Pieces captured){
+    public void setPieceCaptured(Pieces captured, int index){
         pieceCaptured = captured;
+        capturedIndex = index;
+    
     }
 
     public Move lastMove(){

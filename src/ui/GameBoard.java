@@ -223,6 +223,9 @@ public class GameBoard extends JPanel {
 //        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         Pieces[] chessPieces = model.getChessPieces();
         for (Pieces piece: chessPieces){
+            if (piece.isCaptured()){
+                continue;
+            }
             if (piece instanceof Pawn) {
                 paintPawn(g2, piece.getCoord(), piece.getPlayer());
             } else if (piece instanceof Rook) {
