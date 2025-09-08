@@ -19,9 +19,9 @@ public class AiPlayer extends Player{
             if (pieces.getPlayer() == this && !pieces.isCaptured()) {
                 for (GraphCoord moves : pieces.moves()) {
                     this.moveSimulation(moves, pieces);
-                    int moveScore = evaluateBestMove(3, this, true);
+                    int moveScore = evaluateBestMove(2, this, true);
                     model.undoMove();
-                    if (Math.max(moveScore, bestScore) != bestScore) {
+                    if (moveScore > bestScore) {
                         bestScore = moveScore;
                         bestMove = moves;
                         bestPieceToMove = pieces;
@@ -39,7 +39,7 @@ public class AiPlayer extends Player{
             return evaluateMove(currentPlayer);
         }
         for (Pieces pieces: model.getChessPieces()){
-            if (pieces.getPlayer() == currentPlayer){
+            if (pieces.getPlayer() == currentPlayer && !pieces.isCaptured()){
                 for(GraphCoord moves: pieces.moves()){
                     currentPlayer.moveSimulation(moves, pieces);
                     int score = evaluateBestMove(depth - 1, model.getEnemyPlayer(currentPlayer), !isMaximizing);
@@ -48,25 +48,6 @@ public class AiPlayer extends Player{
                         } else {
                             bestScore = Math.min(bestScore, score);
                         }
-                    // if (currentPlayer.tryMove(moves, pieces)){
-                    //     Pawn pawn = (Pawn) pieces;
-                    //     for (int promoType = 1; promoType <= 4; promoType++) {
-                    //         pawn.processPromotion(promoType);
-                    //         int score = evaluateBestMove(depth - 1, model.getEnemyPlayer(currentPlayer), !isMaximizing);
-                    //         if (isMaximizing) {
-                    //             bestScore = Math.max(bestScore, score);
-                    //         } else {
-                    //             bestScore = Math.min(bestScore, score);
-                    //         }
-                    //     }
-                    // } else {
-                    //     int score = evaluateBestMove(depth - 1, model.getEnemyPlayer(currentPlayer), !isMaximizing);
-                    //     if (isMaximizing) {
-                    //         bestScore = Math.max(bestScore, score);
-                    //     } else {
-                    //         bestScore = Math.min(bestScore, score);
-                    //     }
-                    // }
                     model.undoMove();
                 }
             }
@@ -74,19 +55,33 @@ public class AiPlayer extends Player{
         return bestScore;
     }
     private int evaluateMove(Player currentPlayer){
+        
         iPair material = countMaterial(currentPlayer);
         int playerPoints = material.i();
         int enemyPoints = material.j();
-
+        if (currentPlayer.getKing().underCheck()) {
+            playerPoints -= 50;
+        }
+        if (model.getEnemyPlayer(currentPlayer).getKing().underCheck()) {
+        playerPoints += 50;
+        }
+        
+        if (model.getLastMove() != null && model.getLastMove().pieceCaptured() != null) {
+        Pieces moved = model.getLastMove().pieceMoved();
+        Pieces captured = model.getLastMove().pieceCaptured();
+        int tradeValue = captured.getValue() - moved.getValue();
+        playerPoints += tradeValue;
+        }
+        
         for (Pieces piece : model.getChessPieces()) {
-        if (piece.getPlayer() == currentPlayer) {
+        if (piece.getPlayer() == currentPlayer && !piece.isCaptured()) {
             iPair pos = piece.getPos().getCoord();
             if ((pos.i() == 3 || pos.i() == 4) && (pos.j() == 3 || pos.j() == 4)) {
-                playerPoints += 2;
+                playerPoints += 20;
             }
         }
     }
-
+    
     return playerPoints - enemyPoints;
     }
 
@@ -94,9 +89,9 @@ public class AiPlayer extends Player{
         int playerPoints = 0;
         int enemyPoints = 0;
         for (Pieces pieces: model.getChessPieces()){
-            if (pieces.player == currentPlayer){
+            if (pieces.player == currentPlayer && !pieces.isCaptured()){
                 playerPoints += pieces.getValue();
-            } else {
+            } else if (!pieces.isCaptured()){
                 enemyPoints += pieces.getValue();
             }
         }

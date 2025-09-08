@@ -99,7 +99,6 @@ public abstract class Pieces {
     protected Pieces processCapture(int i, int j){
         Pieces output = board[i][j];
         int index = model.getPeiceIndex(output);
-        System.out.println(index);
         model.removePiece(board[i][j]);
         board[i][j] = null;
         lastMove.setPieceCaptured(output, index);

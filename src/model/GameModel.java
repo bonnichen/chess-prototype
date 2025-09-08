@@ -23,6 +23,7 @@ public class GameModel {
     private Player playerInPlay;
     protected SwingPropertyChangeSupport propSupport;
     private final Pieces[][] board;
+    private int peiceCount = 32;
     public Pieces[][] getBoard(){
         return board;
     }
@@ -103,7 +104,7 @@ public class GameModel {
 
     private void determineCheckmateOrStalemate(){
         for (Pieces piece: chessPieces){
-            if (piece.player == playerInPlay && piece.moves().length>0){
+            if (piece.player == playerInPlay && !piece.isCaptured() &&piece.moves().length>0){
                 return;
             }
         }
@@ -117,7 +118,7 @@ public class GameModel {
     }
 
     private void determineInsufficientMaterial(){
-        if (getChessPieces().length <= 4){
+        if (peiceCount <= 4){
             if (kingVsKing() || kingBishopOrKingKnightVsKing() || kingBishopVsKingBishop()){
                 state = GameState.INSUFFICIENT_MATERIAL;
                 propSupport.firePropertyChange("gameResult", null, GameState.INSUFFICIENT_MATERIAL);
@@ -126,11 +127,11 @@ public class GameModel {
     }
 
     private boolean kingVsKing(){
-        return getChessPieces().length == 2;
+        return peiceCount == 2;
     }
 
     private boolean kingBishopOrKingKnightVsKing(){
-        if (getChessPieces().length == 3){
+        if (peiceCount == 3){
             for (Pieces piece: chessPieces){
                 if (piece instanceof Bishop || piece instanceof Knight) {
                     return true;
@@ -144,9 +145,9 @@ public class GameModel {
         Bishop blackBishop = null;
         Bishop whiteBishop = null;
         for (Pieces piece: chessPieces){
-            if (piece instanceof Bishop && piece.player == player2) {
+            if (piece instanceof Bishop && piece.player == player2 && piece.isCaptured() == false) {
                 blackBishop = (Bishop) piece;
-            } else if (piece instanceof Bishop && piece.player == player1) {
+            } else if (piece instanceof Bishop && piece.player == player1 && piece.isCaptured() == false) {
                 whiteBishop = (Bishop) piece;
             }
         }
@@ -309,6 +310,7 @@ public class GameModel {
         for (Pieces chessPiece: chessPieces){
             if (chessPiece == piece) {
                 piece.setCaptured(true);
+                peiceCount--;
                 break;
             }
         }
@@ -316,6 +318,7 @@ public class GameModel {
 
     public void addPiece(Pieces piece, int index){
         chessPieces[index] = piece;
+        peiceCount++;
         piece.setCaptured(false);
     }
 
