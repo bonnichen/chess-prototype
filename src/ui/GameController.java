@@ -12,12 +12,13 @@ import model.King;
 import model.Pawn;
 import model.Player;
 
-public class GameController extends MouseAdapter{
+public class GameController extends MouseAdapter {
 
+    public enum GameState {
+        MENU, PLAYING, PROMOTION, CHECKMATE,
+        STALEMATE, DRAW, GAMEOVER
+    }
 
-
-    public enum GameState {MENU, PLAYING, PROMOTION, CHECKMATE,
-        STALEMATE, DRAW, GAMEOVER}
     private GameState state;
     private final GameModel model;
     private final GameBoard gameBoard;
@@ -25,7 +26,7 @@ public class GameController extends MouseAdapter{
 
     protected SwingPropertyChangeSupport propSupport;
 
-    public GameController(GameModel model, GameBoard gameBoard){
+    public GameController(GameModel model, GameBoard gameBoard) {
         this.model = model;
         this.gameBoard = gameBoard;
         state = GameState.PLAYING;
@@ -37,64 +38,61 @@ public class GameController extends MouseAdapter{
 
     }
 
-
-
-
-
-
-
     @Override
     public void mousePressed(MouseEvent e) {
         gameBoard.removeHighlights();
-        int row = e.getX()/75;
-        int col = e.getY()/75;
-        GraphCoord[] validMoves = model.getPlayerInPlay().makeSelection(row,col);
-        if (state == GameState.PLAYING && model.getPlayerInPlay().getValidMoves()!=null
-        && ! (model.getPlayerInPlay() instanceof AiPlayer)){
+        int row = e.getX() / 75;
+        int col = e.getY() / 75;
+        GraphCoord[] validMoves = model.getPlayerInPlay().makeSelection(row, col);
+        if (state == GameState.PLAYING && model.getPlayerInPlay().getValidMoves() != null
+                && !(model.getPlayerInPlay() instanceof AiPlayer)) {
             propSupport.firePropertyChange("boardState", null, null);
             gameBoard.setValidMoves(validMoves);
-            moveType moveType = model.getPlayerInPlay().tryMove(row, col);
-            if (moveType == GameModel.moveType.VALID){
+            if (model.getPlayerInPlay().tryMove(row, col) == moveType.VALID) {
+                System.out.println("VALID");
+                if (model.canPromote()) {
+                    System.out.println("PROMOTE");
+                    state = GameState.PROMOTION;
+                    gameBoard.showPromotionScreen(playerInPlay);
+                }
+                model.getPlayerInPlay().processEndTurn();
                 gameBoard.removeHighlights();
                 model.determineEndGame();
             }
-            if (moveType == GameModel.moveType.PROMOTION){
-                state = GameState.PROMOTION;
-                gameBoard.showPromotionScreen(playerInPlay);
-            }
-//            if (moveType != null && model.getPlayerInPlay() instanceof AiPlayer){
-//                ((AiPlayer) model.getPlayerInPlay()).makeMove();
-//            }
 
-        } else if (state == GameState.PROMOTION){
+            // if (moveType != null && model.getPlayerInPlay() instanceof AiPlayer){
+            // ((AiPlayer) model.getPlayerInPlay()).makeMove();
+            // }
+
+        } else if (state == GameState.PROMOTION) {
             promotionSelect(row, col);
-            }
         }
-    private void promotionSelect(int row, int col){
+    }
+
+    private void promotionSelect(int row, int col) {
         assert model.getLastMove().pieceMoved() instanceof Pawn;
         Pawn pawn = (Pawn) model.getLastMove().pieceMoved();
-        if(row == 3 && col == 3){
-            processPromotion(pawn,1);
-        } else if (row == 3 && col == 4){
-            processPromotion(pawn,2);
-        }else if (row == 4 && col == 3){
-            processPromotion(pawn,3);
-        }else if (row == 4 && col == 4){
-            processPromotion(pawn,4);
+        if (row == 3 && col == 3) {
+            processPromotion(pawn, 1);
+        } else if (row == 3 && col == 4) {
+            processPromotion(pawn, 2);
+        } else if (row == 4 && col == 3) {
+            processPromotion(pawn, 3);
+        } else if (row == 4 && col == 4) {
+            processPromotion(pawn, 4);
         }
         King enemyKing = model.getEnemyPlayer().getKing();
         gameBoard.setUnderCheck(enemyKing.scanForEnemyChecks());
     }
 
-    private void processPromotion(Pawn pawn, int promo){
+    private void processPromotion(Pawn pawn, int promo) {
         pawn.processPromotion(promo);
         gameBoard.removePromotionScreen();
         state = GameState.PLAYING;
     }
 
-
     public void processMultiplayerGame() {
-        if (state ==GameState.MENU){
+        if (state == GameState.MENU) {
             state = GameState.PLAYING;
         }
     }
@@ -106,4 +104,3 @@ public class GameController extends MouseAdapter{
         propSupport.addPropertyChangeListener(propertyName, listener);
     }
 }
-

@@ -54,7 +54,8 @@ public class Player {
                 if (Objects.equals(move.getCoord(), new iPair(row, col))) {
                     selectedPiece.setPos(row, col);
                     validMoves = null;
-                    return processEndTurn();
+                    model.setLastMove(selectedPiece.getLastMove());
+                    return moveType.VALID;
                 }
             }
         }
@@ -70,11 +71,6 @@ public class Player {
         Player enemyPlayer = model.getEnemyPlayer();
         model.setPlayerInPlay(enemyPlayer);
         enemyPlayer.getKing().scanForEnemyChecks();
-        model.setLastMove(selectedPiece.getLastMove());
-        moveType validPromotion = model.pawnPromotion();
-        if (validPromotion != null) {
-            return validPromotion;
-        }
         selectedPiece = null;
         if (model.getPlayerInPlay() instanceof AiPlayer) {
             ((AiPlayer) model.getPlayerInPlay()).makeMove();
@@ -93,7 +89,7 @@ public class Player {
 
     public boolean tryMove(GraphCoord move, Pieces selectedPiece) {
         selectedPiece.setPos(move.getCoord().i(), move.getCoord().j());
-        validMoves = null;
+        // validMoves = null;
         return processEndTurnA(selectedPiece);
     }
 

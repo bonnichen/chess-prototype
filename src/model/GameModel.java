@@ -155,12 +155,22 @@ public class GameModel {
                 blackBishop.getColor() == whiteBishop.getColor();
     }
 
-    public moveType pawnPromotion(){
-        Pieces pieceMoved = lastMove.pieceMoved();
-        if (pieceMoved instanceof Pawn && ((Pawn) pieceMoved).canPromote()){
-            return moveType.PROMOTION;
+    public boolean canPromote(){
+        System.out.println(lastMove);
+        if (lastMove == null){
+            return false;
         }
-        return null;
+        Pieces pieceMoved = lastMove.pieceMoved();
+        System.out.println("is pawn: " + (pieceMoved instanceof Pawn));
+         if (pieceMoved instanceof Pawn){
+                System.out.println(((Pawn) pieceMoved).canPromote());
+         }
+        if (pieceMoved instanceof Pawn && ((Pawn) pieceMoved).canPromote()){
+            System.out.println("can promote");
+            return true;
+        }
+        System.out.println("cant");
+        return false;
     }
 
     private void generateKing(){
